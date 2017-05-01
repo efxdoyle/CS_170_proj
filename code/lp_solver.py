@@ -104,11 +104,9 @@ class Problem(object):
 
     @timeit
     def setSets(self, lst):
-        self.sets = spmatrix(0, [0], [0], (3 * self.N() + 2, self.N()))
-        for s in lst:
-            incomp = [p for q in [[i for i in range(self.N()) if x == self.X[i, 1]] for x in s] for p in q]
-            for i in incomp:
-                self.sets[i, incomp] = 1
+        self.sets = spmatrix(0, [0], [0], (self.C() + 2 * self.N() + 2, self.N()))
+        for i, s in enumerate(lst):
+            self.sets[i, [p for q in [[i for i in range(self.N()) if x == self.X[i, 1]] for x in s] for p in q]] = 1
 
     def shouldRemove(self, row):
         if cst(row) >= val(row):
@@ -138,13 +136,12 @@ class Problem(object):
         A = self.sets # set constraints, and 2 extra rows
         A[-2, :], A[-1, :] = self.X[:, 2], self.X[:, 3] # weight, cost constraints
         for i in range(self.N()):
-            A[self.N() + i, i] = -1 # 0 constraints
-            A[2 * self.N() + i, i] = 1 # 1 constraints
-        b = matrix([1 for _ in range(len(self.X))] + [0 for _ in range(self.N())] + [1 for _ in range(self.N())] + [self.P(), self.M()]) # set constraints, weight, cost
+            A[self.C() + i, i] = -1 # 0 constraints
+            A[self.C() + self.N() + i, i] = 1 # 1 constraints
+        b = matrix([1 for _ in range(self.C())] + [0 for _ in range(self.N())] + [1 for _ in range(self.N())] + [self.P(), self.M()]) # set constraints, weight, cost
 #         print('c: \n{}'.format(c))
 #         print('A: \n{}'.format(A))
 #         print('b: \n{}'.format((b)))
-        bound = [0, 1] # 0-1 bound x
         res = solvers.lp(c, A, b, solver = 'glpk')
         self.writeSol(res['x'])
         return res
