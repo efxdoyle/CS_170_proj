@@ -8,7 +8,7 @@ datapath = '../data/'
 
 @timeit
 def solve():
-    for i in list(range(1, 22))[::-1]:
+    for i in range(2, 22):
         solveOne(i)
 
 @timeit

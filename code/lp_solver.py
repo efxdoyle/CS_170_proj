@@ -91,7 +91,7 @@ class Problem(object):
             x[0] = i
             x = [float(s) for s in x]
             if i == 0:
-                self.X = np.array(x, dtype = 'float64')
+                self.X = np.array(x, dtype = 'float32')
             else:
                 self.X = np.vstack((self.X, x))
 
@@ -127,7 +127,7 @@ class Problem(object):
                 pass
             efficiency += [(val(row) - cst(row)) / wt(row)]
         self.X = np.delete(self.X, temp, axis = 0)
-        self.X = np.column_stack((self.X, np.array(efficiency, dtype = 'float64').reshape((-1, 1))))
+        self.X = np.column_stack((self.X, np.array(efficiency, dtype = 'float32').reshape((-1, 1))))
         self.ordering = list(zip(*sorted(enumerate(efficiency), key=lambda x: x[1])[::-1]))[0]
 
     @timeit
@@ -137,12 +137,12 @@ class Problem(object):
         A[-2, :], A[-1, :] = self.X[:, 2], self.X[:, 3] # weight, cost constraints
         for i in range(self.N()):
             A[self.C() + i, i] = -1 # 0 constraints
-            A[self.C() + self.N() + i, i] = 1 # 1 constraints
-        b = matrix([1 for _ in range(self.C())] + [0 for _ in range(self.N())] + [1 for _ in range(self.N())] + [self.P(), self.M()]) # set constraints, weight, cost
+            A[self.C() + self.N() + i, i] = 1. # 1 constraints
+        b = matrix([1. for _ in range(self.C())] + [0. for _ in range(self.N())] + [1. for _ in range(self.N())] + [self.P(), self.M()]) # set constraints, weight, cost
 #         print('c: \n{}'.format(c))
 #         print('A: \n{}'.format(A))
-#         print('b: \n{}'.format((b)))
-        res = solvers.lp(c, A, b, solver = 'glpk')
+#         print('b: \n{}'.format(b))
+        res = solvers.sdp(c, A, b, solver = 'dsdp')
         self.writeSol(res['x'])
         return res
 
