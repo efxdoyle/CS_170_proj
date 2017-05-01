@@ -94,7 +94,7 @@ class Problem(object):
                 lst[3] += wt(x)
                 lst[4].append(x)
             self.classes[clas(x)][1] = self.classes[clas(x)][1] / self.classes[clas(x)][2]
-            self.classes[clas(x)][4] = sorted(self.classes[clas(x)][4], key = lambda x : -(val(x) - cst(x)) / wt(x))
+            # self.classes[clas(x)][4] = sorted(self.classes[clas(x)][4], key = lambda x : -(val(x) - cst(x)) / wt(x))
         # print(self.classes[4][4])
                 
     def readIncomp(self, f):
@@ -110,6 +110,7 @@ class Problem(object):
     
     @timeit
     def solve(self):
+        # sort classes in order of best efficiency
         w = 0
         lst = []
         for x in self.classes.keys():
@@ -136,6 +137,8 @@ class Problem(object):
 
             use = []
             # print(comp)
+
+            # use = just the most efficient items with constraints checked for
             for q in comp:
                 use.extend(self.classes[q][4])
             use = sorted(use, key = lambda x : -(val(x) - cst(x)) / wt(x))
@@ -145,6 +148,9 @@ class Problem(object):
             w = 0
             profit = 0
             p = 0
+
+            # or just use the knapsack solution here, no need to work about constraints cuz
+            # theyre already checked
             for i in use:
                 weight = float(i[2])
                 price = float(i[3])
@@ -166,7 +172,7 @@ class Problem(object):
 
 
 
-prob = Problem('small.in')
+prob = Problem('data/problem1.in')
 prob.readFile()
 prob.solve()
 
