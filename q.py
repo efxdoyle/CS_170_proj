@@ -1,19 +1,3 @@
-import numpy as np
-import time                                                
-
-def timeit(method):
-
-    def timed(*args, **kw):
-        ts = time.time()
-        result = method(*args, **kw)
-        te = time.time()
-
-        print('%r (%r, %r) %2.2f sec' % \
-              (method.__name__, args, kw, te-ts))
-        return result
-
-    return timed
-
 X = None
 y = None
 
@@ -66,7 +50,6 @@ class Problem(object):
         return self.classes
 
     
-    @timeit
     def readFile(self):
         if self.read:
             raise Exception('already read')
@@ -119,8 +102,6 @@ class Problem(object):
                     return True
         return False
 
-    
-    @timeit
     def solve(self):
         # sort classes in order of best efficiency
         w = 0
@@ -139,10 +120,12 @@ class Problem(object):
         p = len(lst)
         if len(self.classes) > 50:
             p = 50
+        p = len(lst)
         for i in range(p):
             comp = set()
             comp.add(lst[i][0])
             q = int(min(len(lst), p))
+            q = len(lst)
             for j in range(q):
                 if j != i:
                     if not self.hasConflict(comp, lst[j][0]):
@@ -195,7 +178,7 @@ class Problem(object):
 
 x = 'data/problem'
 
-for i in range(18, 21):
+for i in range(1, 22):
     prob = Problem(x + str(i) + '.in')
     prob.readFile()
     prob.solve()
