@@ -48,6 +48,7 @@ class Problem(object):
         self.sets = [] # lists of incompatible classes
         self.ordering = () # indices of cut X in order of decreasing efficiency
         self.classes = {}
+        self.con = {}
 
     def P(self):
         return self.v[0]
@@ -93,20 +94,31 @@ class Problem(object):
                 lst[2] += 1
                 lst[3] += wt(x)
                 lst[4].append(x)
-            self.classes[clas(x)][1] = self.classes[clas(x)][1] / self.classes[clas(x)][2]
+                self.classes[clas(x)][1] = self.classes[clas(x)][1] / self.classes[clas(x)][2]
             # self.classes[clas(x)][4] = sorted(self.classes[clas(x)][4], key = lambda x : -(val(x) - cst(x)) / wt(x))
         # print(self.classes[4][4])
                 
     def readIncomp(self, f):
         for i in range(self.C()):
-            self.sets += [list(map(int, f.readline().split(',')))]
+            line = f.readline().split(',')
+            for i in line:
+                i = int(i)
+                if i not in self.con.keys():
+                    self.con[i] = set()
+                for j in line:
+                    j = int(j)
+                    if i != j:
+                        self.con[i].add(j)
+            # self.sets += [list(map(int, f.readline().split(',')))]
         # print(self.sets)
 
-    def hasConflict(self, x, y):
-        for lst in self.sets:
-            if x in lst and y in lst:
-                return False
-        return True
+    def hasConflict(self, lst, y):
+        for i in lst:
+            if i in self.con.keys():
+                if y in self.con[i]:
+                    return True
+        return False
+
     
     @timeit
     def solve(self):
@@ -123,25 +135,25 @@ class Problem(object):
         max_items = []
         max_profit = 0
 
-        for i in range(len(lst)):
 
-            comp = [lst[i][0]]
-            for j in range(i+1, len(lst)):
-                flag = True
-                for h in comp:
-                    if self.hasConflict(h, lst[j][0]):
-                        flag = False
-                        break
-                if flag:
-                    comp.append(lst[j][0])
-
+        p = len(lst)
+        if len(self.classes) > 50:
+            p = 50
+        for i in range(p):
+            comp = set()
+            comp.add(lst[i][0])
+            q = int(min(len(lst), p))
+            for j in range(q):
+                if j != i:
+                    if not self.hasConflict(comp, lst[j][0]):
+                        comp.add(lst[j][0])
             use = []
             # print(comp)
 
             # use = just the most efficient items with constraints checked for
             for q in comp:
                 use.extend(self.classes[q][4])
-            use = sorted(use, key = lambda x : -(val(x) - cst(x)) / wt(x))
+            use = sorted(use, key = lambda x : -(val(x) - cst(x)) / (wt(x) + 0.1))
 
 
             items = []
@@ -168,13 +180,25 @@ class Problem(object):
         print("max items:")
         print(max_items)
 
+        f = open('output/' + self.filename[4:-2] + "out", "w")
+
+        for x in max_items:
+            f.write(x + "\n")
 
 
 
 
-prob = Problem('data/problem1.in')
-prob.readFile()
-prob.solve()
+
+# prob = Problem('data/problem1.in')
+# prob.readFile()
+# prob.solve()
+
+x = 'data/problem'
+
+for i in range(18, 21):
+    prob = Problem(x + str(i) + '.in')
+    prob.readFile()
+    prob.solve()
 
 
 # print('weight: {} / {} \nprice: {} / {} \nresale: {} \nprofit: {} \nitems used: {} / {}'.format( \
