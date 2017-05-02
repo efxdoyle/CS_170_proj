@@ -136,11 +136,11 @@ class Problem(object):
 
 
         p = len(lst)
-        p = 50
+        p = 100
         for i in range(p):
             comp = set()
             comp.add(lst[i][0])
-            q = int(min(len(lst), 10000))
+            q = int(min(len(lst), 3000))
             # q = len(lst)
             for j in range(q):
                 if j != i:
